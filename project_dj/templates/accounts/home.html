@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+<div>
+    Welcome! {{ user.username }}
+    {% if user.is_anonymous %}
+    <a href="/accounts/register/">Register</a>
+    <a href="{% url 'django.contrib.auth.views.login' %}">Login</a>
+    {% else %}
+    <a href="/demo/">Demo</a>
+    <a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a>
+    {% endif %}
+</div>
+{% endblock %}

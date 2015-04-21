@@ -1,0 +1,102 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Django Tornado Demo</title>
+    <style type="text/css">
+        body {
+            min-width: 500px;
+        }
+    </style>
+    <script src="{% static 'demo/js/jquery.min.js' %}"></script>
+    <script src="{% static 'demo/js/csrf_protection.js'%}"></script>
+    <script src="{% static 'demo/js/demo_chart.js'%}"></script>
+    <script src="{% static 'demo/js/highcharts/highcharts.js'%}"></script>
+    <script src="{% static 'demo/js/highcharts/exporting.js'%}"></script>
+    <script>
+        function log(m) {
+            d = document.getElementById("log");
+            d.innerHTML = m + "<br/>" + d.innerHTML;
+        }
+
+        function update(y) {
+            var chart = $('#container').highcharts();
+            var x = (new Date()).getTime();
+            chart.series[0].addPoint([x, y], true, true);
+        }
+
+        $(document).ready(function () {
+            var ws;
+
+            $("#connect").click(function(event) {
+                event.preventDefault();
+
+                var host = $("#host").val();
+                var port = $("#port").val();
+                var uri = $("#uri").val();
+
+                ws = new WebSocket("ws://" + host + ":" + port + uri);
+
+                ws.onopen = function(event) {
+                    log("Recv: Connection opened");
+                };
+
+                ws.onmessage = function(event) {
+                    //log("Recv: " + event.data);
+                    var msg = JSON.parse(event.data);
+                    update(parseInt(msg.message));
+                };
+
+                ws.onclose = function(event) {
+                    log("Recv: Connection closed");
+                };
+            });
+
+            $("#disconnect").click(function(event) {
+                ws.close();
+            });
+
+            $("#start").click(function(event) {
+                var msg = JSON.stringify({action: 'start', user: '{{ user.username }}'});
+                //log("Sent: " + msg)
+                ws.send(msg);
+            });
+
+            $("#stop").click(function(event) {
+                var msg = JSON.stringify({action: 'stop', user: '{{ user.username }}'});
+                //log("Sent: " + msg)
+                ws.send(msg);
+            });
+        });
+    </script>
+</head>
+<body>
+    Welcome! <strong>{{ user.username }}</strong>
+    <br/>
+    <br/>
+    <div>
+        <label for="host">Host:</label>
+        <input type="text" id="host" value="localhost"/>
+
+        <label for="port">Port:</label>
+        <input type="text" id="port" value="8080"/>
+
+        <label for="uri">URI:</label>
+        <input type="text" id="uri" value="/ws"/>
+
+        <input type="submit" id="connect" value="Connect"/>
+        {% csrf_token %}
+        <input type="submit" id="disconnect" value="Disconnect"/>
+        {% csrf_token %}
+        <input type="submit" id="start" value="Start"/>
+        {% csrf_token %}
+        <input type="submit" id="stop" value="Stop"/>
+        {% csrf_token %}
+    </div>
+    <br/>
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <br/>
+    <div id="log"></div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+Registration
+{% endblock %}
+
+{% block content %}
+{% if registered %}
+<strong>Thank you for registering!</strong>
+Go to <a href="/accounts/login/">Login</a><br />
+{% else %}
+<strong>Register here!</strong><br />
+
+<form id="reg_form" method="post" action="/accounts/register/" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Display each form. The as_p method wraps each element in a paragraph
+        (<p>) element. This ensures each element appears on a new line,
+        making everything look neater. -->
+    {{ reg_form.as_p }}
+
+    <!-- Provide a button to click to submit the form. -->
+    <input type="submit" name="submit" value="Register" />
+</form>
+{% endif %}
+{% endblock %}
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head lang="en">-->
+    <!--<meta charset="UTF-8">-->
+    <!--<title>Registration</title>-->
+<!--</head>-->
+<!--<body>-->
+    <!--{% if registered %}-->
+    <!--<strong>Thank you for registering!</strong>-->
+    <!--Go to <a href="/accounts/login/">Login</a><br />-->
+    <!--{% else %}-->
+    <!--<strong>Register here!</strong><br />-->
+
+    <!--<form id="reg_form" method="post" action="/accounts/register/"-->
+                <!--enctype="multipart/form-data">-->
+
+        <!--{% csrf_token %}-->
+
+        <!--&lt;!&ndash; Display each form. The as_p method wraps each element in a paragraph-->
+                 <!--(<p>) element. This ensures each element appears on a new line,-->
+                 <!--making everything look neater. &ndash;&gt;-->
+        <!--{{ reg_form.as_p }}-->
+
+        <!--&lt;!&ndash; Provide a button to click to submit the form. &ndash;&gt;-->
+        <!--<input type="submit" name="submit" value="Register" />-->
+    <!--</form>-->
+    <!--{% endif %}-->
+<!--</body>-->
+<!--</html>-->
