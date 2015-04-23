@@ -4,15 +4,19 @@
 # Requires 'ab' to be installed.
 #
 # Running without profiling:
-# demos/benchmark/benchmark.py
-# demos/benchmark/benchmark.py --quiet --num_runs=5|grep "Requests per second"
+# python benchmark.py
+# python benchmark.py --quiet --num_runs=5|grep "Requests per second"
 #
 # Running with profiling:
 #
-# python -m cProfile -o /tmp/prof demos/benchmark/benchmark.py
+# python -m cProfile -o /tmp/prof benchmark.py
 # python -m pstats /tmp/prof
 # % sort time
 # % stats 20
+#
+# Running with save the output to a file:
+#
+# python benchmark.py > output.txt 2>&1
 
 from tornado.options import define, options, parse_command_line
 import subprocess
@@ -48,8 +52,8 @@ def run():
     if options.quiet:
         # just stops the progress messages printed to stderr
         args.append("-q")
-    args.extend(["-e", "results.csv"])
-    args.extend(["-g", "results.txt"])
+    args.extend(["-e", "result.csv"])
+    args.extend(["-g", "result.txt"])
     args.append("http://%s:%d/demo/" % (options.wshost, options.wsport))
     subprocess.Popen(args)
 
