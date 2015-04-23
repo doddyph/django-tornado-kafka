@@ -170,14 +170,15 @@ def main():
         django.setup()
     parse_command_line()
 
+    http_server = HTTPServer(WSApplication())
+    http_server.listen(options.wsport, address=options.wshost)
+    signal.signal(signal.SIGINT, lambda sig, frame: shutdown(http_server))
+
     t = Producer(args=(options.kafkahost, options.kafkaport, 'topic.1'))
     t.setDaemon(True)
     t.start()
 
-    http_server = HTTPServer(WSApplication())
-    http_server.listen(options.wsport, address=options.wshost)
     print '[WebSocket] Starting server on {0}:{1}/ws'.format(options.wshost, options.wsport)
-    signal.signal(signal.SIGINT, lambda sig, frame: shutdown(http_server))
     IOLoop.instance().start()
 
 

@@ -2,3 +2,5 @@ pyvenv
 .idea
 project_dj/db.sqlite3
 *.pyc
+*.csv
+*.txt
