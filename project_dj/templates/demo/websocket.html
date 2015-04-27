@@ -26,6 +26,19 @@
             chart.series[0].addPoint([x, y], true, true);
         }
 
+        function topic(topics) {
+            var html = '';
+            for (i=0; i<topics.length; i++) {
+                if (i==0) {
+                    html = html + '<label><input type="radio" name="topic" value="' + topics[i] + '" checked />' + topics[i] + '</label> ';
+                }
+                else {
+                    html = html + '<label><input type="radio" name="topic" value="' + topics[i] + '" />' + topics[i] + '</label> ';
+                }
+            }
+            $('#topics').html(html);
+        }
+
         $(document).ready(function () {
             var ws;
 
@@ -39,17 +52,22 @@
                 ws = new WebSocket("ws://" + host + ":" + port + uri);
 
                 ws.onopen = function(event) {
-                    log("Recv: Connection opened");
+                    log("WebSocket Server: Connection opened");
                 };
 
                 ws.onmessage = function(event) {
                     //log("Recv: " + event.data);
                     var msg = JSON.parse(event.data);
-                    update(parseInt(msg.message));
+                    if (typeof msg.message !== 'undefined') {
+                        update(parseInt(msg.message));
+                    }
+                    else if (typeof msg.topic !== 'undefined') {
+                        topic(msg.topic);
+                    }
                 };
 
                 ws.onclose = function(event) {
-                    log("Recv: Connection closed");
+                    log("WebSocket Server: Connection closed");
                 };
             });
 
@@ -86,14 +104,18 @@
         <input type="text" id="uri" value="/ws"/>
 
         <input type="submit" id="connect" value="Connect"/>
-        {% csrf_token %}
         <input type="submit" id="disconnect" value="Disconnect"/>
-        {% csrf_token %}
         <input type="submit" id="start" value="Start"/>
-        {% csrf_token %}
         <input type="submit" id="stop" value="Stop"/>
         {% csrf_token %}
     </div>
+    <br/>
+    <form>
+        <div>
+            <strong>Kafka Topic(s):</strong>
+            <span id="topics"></span>
+        </div>
+    </form>
     <br/>
     <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
     <br/>

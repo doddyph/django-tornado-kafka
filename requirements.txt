@@ -2,5 +2,6 @@ backports.ssl-match-hostname==3.4.0.2
 certifi==14.5.14
 Django==1.7.4
 kafka-python==0.9.3
+kazoo==2.0
 six==1.9.0
 tornado==4.1

@@ -13,14 +13,18 @@ from tornado.web import Application, FallbackHandler, RequestHandler, StaticFile
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.wsgi import WSGIContainer
 from kafka_usage import Consumer, Producer
+from zkclient import ZKClient
 
 define('wshost', type=str, default="localhost")
 define('wsport', type=int, default=8080)
 define('kafkahost', type=str, default="localhost")
 define('kafkaport', type=int, default=9092)
+define('zkhost', type=str, default="localhost")
+define('zkport', type=int, default=2181)
 define('debug', type=bool, default=False)
 
 subscriptions = {}
+kafka_topics = []
 
 
 class HelloTornado(RequestHandler):
@@ -32,6 +36,7 @@ class WSHandler(WebSocketHandler):
     def open(self):
         self.user = self.get_django_current_user()
         print '[WebSocket] New connection from user: {}.'.format(self.user)
+        self.write_message(json.dumps({'topic': kafka_topics}))
 
     def on_message(self, message):
         # self.user = self.get_django_current_user()
@@ -60,7 +65,7 @@ class WSHandler(WebSocketHandler):
         if str(user) in subscriptions.keys():
             t = subscriptions[str(user)]
         else:
-            t = Consumer(args=(options.kafkahost, options.kafkaport, 'topic.1'))
+            t = Consumer(args=(options.kafkahost, options.kafkaport, str(kafka_topics[0])))
             subscriptions[str(user)] = t
             t.setDaemon(True)
             t.start()
@@ -174,7 +179,11 @@ def main():
     http_server.listen(options.wsport, address=options.wshost)
     signal.signal(signal.SIGINT, lambda sig, frame: shutdown(http_server))
 
-    t = Producer(args=(options.kafkahost, options.kafkaport, 'topic.1'))
+    zk = ZKClient(options.zkhost, options.zkport)
+    global kafka_topics
+    kafka_topics = zk.kafka_topics()
+
+    t = Producer(args=(options.kafkahost, options.kafkaport, str(kafka_topics[0])))
     t.setDaemon(True)
     t.start()
 
