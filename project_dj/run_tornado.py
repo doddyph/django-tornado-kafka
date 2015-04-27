@@ -1,11 +1,12 @@
 import json
+import time
+import signal
+
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 from django.utils.importlib import import_module
 import os
 import django
-import time
-import signal
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.options import parse_command_line, define, options
@@ -14,6 +15,7 @@ from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.wsgi import WSGIContainer
 from kafka_usage import Consumer, Producer
 from zkclient import ZKClient
+
 
 define('wshost', type=str, default="localhost")
 define('wsport', type=int, default=8080)
